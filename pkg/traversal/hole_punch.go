@@ -46,7 +46,7 @@ func (h *holePunchImpl) HolePunching(localAddr string, localNAT int8, msg *rende
 		return handler.HolePunch()
 
 	case easy2hard:
-		handler, err := newE2HHandler(localAddr, remoteAddr, localNAT, msg.RemoteNATType, msg.IsActive)
+		handler, err := newE2HHandlerV2(localAddr, remoteAddr, localNAT, msg.RemoteNATType, msg.IsActive)
 		if err != nil {
 			return nil, err
 		}

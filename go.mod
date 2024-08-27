@@ -3,6 +3,7 @@ module github.com/Xib1uvXi/xholepunch
 go 1.23.0
 
 require (
+	github.com/Doraemonkeys/reliableUDP v0.0.0-20230512152910-091cd13bb11e
 	github.com/go-kratos/kratos/v2 v2.8.0
 	github.com/goccy/go-json v0.10.3
 	github.com/panjf2000/ants/v2 v2.10.0

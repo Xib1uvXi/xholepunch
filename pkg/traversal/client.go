@@ -102,7 +102,7 @@ func (c *Client) connect(token string) error {
 
 func (c *Client) negotiation(conn net.Conn) error {
 	// set timeout
-	_ = conn.SetReadDeadline(time.Now().Add(10 * time.Second))
+	_ = conn.SetReadDeadline(time.Now().Add(60 * time.Second))
 	var msg rendezvous.NegotiationMessage
 	if err := netutil.ConnReceiveMessage(conn, &msg); err != nil {
 		log.Errorf("receive message error: %v", err)
@@ -174,6 +174,8 @@ func (c *Client) ackNegotiation(msg *rendezvous.NegotiationMessage) error {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+
+	// fixme: need change c.localAddr to real local addr
 
 	quicClient, err := quic.DialAddr(ctx, quicServerAddr, netutil.ClientTLSConfig(), nil)
 	if err != nil {

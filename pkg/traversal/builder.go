@@ -15,3 +15,10 @@ func Builder(serverAddr string, natType int8) (*Client, error) {
 
 	return NewClient(serverAddr, natType, hpHandler, cf), nil
 }
+
+func BuilderV2(serverAddr string, natType int8) (*ClientV2, error) {
+	hpHandler := NewHolePunchImpl()
+	cf := &DemoConnectFactory{}
+
+	return NewClientV2(serverAddr, natType, hpHandler, cf), nil
+}

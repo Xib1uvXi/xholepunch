@@ -3,7 +3,7 @@ package rendezvous
 import "time"
 
 func Builder(listenAddr string) (*Server, error) {
-	meeting := NewMeetingImpl()
+	meeting := NewMeetingImplV2()
 
 	wrm, err := NewWaitingRoomManager(meeting, 1*time.Minute, 3*time.Minute)
 	if err != nil {
