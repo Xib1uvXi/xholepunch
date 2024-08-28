@@ -2,7 +2,7 @@ package main
 
 import (
 	"flag"
-	"github.com/Xib1uvXi/xholepunch/pkg/traversal"
+	"github.com/Xib1uvXi/xholepunch/pkg/traversalv2"
 	"github.com/go-kratos/kratos/v2/log"
 )
 
@@ -38,7 +38,7 @@ func main() {
 
 	nattype := int8(nat)
 
-	cLocal, err := traversal.BuilderV2(server, nattype)
+	cLocal, err := traversalv2.BuilderDemo(server, nattype)
 	if err != nil {
 		panic(err)
 	}

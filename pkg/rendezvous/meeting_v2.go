@@ -26,6 +26,10 @@ func (m *meetingImplV2) Meeting(token string, conn1, conn2 *holePunchConn) error
 		conn1Active = true
 	}
 
+	if types.NATType(conn1.natType) == types.PortRestrictedCone && types.NATType(conn2.natType) != types.Symmetric && types.NATType(conn2.natType) != types.PortRestrictedCone {
+		conn1Active = true
+	}
+
 	wg := sync.WaitGroup{}
 	wg.Add(2)
 
