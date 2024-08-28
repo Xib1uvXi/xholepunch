@@ -5,7 +5,6 @@ import (
 	"github.com/Xib1uvXi/xholepunch/pkg/traversalv2/predictor"
 	"github.com/Xib1uvXi/xholepunch/pkg/util/netutil"
 	"github.com/go-kratos/kratos/v2/log"
-	"time"
 )
 
 type PortRestrictedCone2Symmetric struct {
@@ -38,7 +37,6 @@ func (hp *PortRestrictedCone2Symmetric) Close() {
 // Symmetric
 func (hp *PortRestrictedCone2Symmetric) symmetric() (*Result, error) {
 	for i := 0; i < 3; i++ {
-		log.Infof("e2hHandlerV2 active send message")
 		if err := netutil.RUDPSendMessage(hp.rudpConn, hp.rAddr, &HolePunchMessage{Empty: 1}, udpTimeout); err != nil {
 			log.Debugf("symmetric2EasyNAT send message error: %v \n", err)
 			continue
@@ -69,14 +67,15 @@ func (hp *PortRestrictedCone2Symmetric) portRestrictedCone() (*Result, error) {
 			}
 
 			newRAddr := fmt.Sprintf("%s:%d", rIp, pport)
+			//log.Debugf("Pseudorandom 2 symmetric send message to %s", newRAddr)
 			_ = netutil.RUDPSendUnreliableMessage(hp.rudpConn, newRAddr, &HolePunchMessage{Empty: 1})
 			_ = netutil.RUDPSendUnreliableMessage(hp.rudpConn, newRAddr, &HolePunchMessage{Empty: 1})
-			hp.WaitFor3RTT(2 * time.Millisecond)
 		}
+
+		log.Debugf("Pseudorandom 2 symmetric send all message done")
 	}()
 
 	for {
-		log.Debugf("e2hHandlerV2 passive start receive message")
 		var msg HolePunchMessage
 		addr, err := netutil.RUDPReceiveAllMessage(hp.rudpConn, udpTimeout, &msg)
 		if err != nil {

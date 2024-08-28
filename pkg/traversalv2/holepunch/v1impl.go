@@ -2,7 +2,6 @@ package holepunch
 
 import (
 	"github.com/Xib1uvXi/xholepunch/pkg/rendezvous"
-	"github.com/Xib1uvXi/xholepunch/pkg/traversalv2"
 	"github.com/Xib1uvXi/xholepunch/pkg/types"
 	"github.com/go-kratos/kratos/v2/errors"
 )
@@ -15,7 +14,7 @@ var (
 type v1Impl struct {
 }
 
-func NewV1Impl() traversalv2.HolePunchHandler {
+func NewV1Impl() HolePunchHandler {
 	return &v1Impl{}
 }
 

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Doraemonkeys/reliableUDP"
 	"github.com/Xib1uvXi/xholepunch/pkg/rendezvous"
+	"github.com/Xib1uvXi/xholepunch/pkg/traversalv2/holepunch"
 	"github.com/Xib1uvXi/xholepunch/pkg/util/netutil"
 	"github.com/go-kratos/kratos/v2/log"
 	"math/rand"
@@ -17,14 +18,14 @@ const getRemoteAddrTimeout = 10 * time.Second
 type Client struct {
 	serverAddr       string
 	NATType          int8
-	holePunchHandler HolePunchHandler
+	holePunchHandler holepunch.HolePunchHandler
 	connectFactory   ConnectFactory
 	cleanup          []func()
 
 	localAddr string
 }
 
-func NewClient(serverAddr string, natType int8, holePunchHandler HolePunchHandler, connectFactory ConnectFactory) *Client {
+func NewClient(serverAddr string, natType int8, holePunchHandler holepunch.HolePunchHandler, connectFactory ConnectFactory) *Client {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	localAddr := ":" + fmt.Sprint(rand.Intn(23000)+10000)
 
@@ -75,10 +76,10 @@ func (c *Client) HolePunching(token string) error {
 		return err
 	}
 
-	log.Infof("hole punching result: %v", hpResult)
+	log.Debugf("hole punching result: %v", hpResult)
 
 	if err := c.connectFactory.Connect(hpResult.LocalAddr, hpResult.RemoteAddr, negotiationMessage.IsActive); err != nil {
-		log.Errorf("create connect error: %v", err)
+		log.Debugf("create connect error: %v", err)
 		return err
 	}
 
@@ -123,7 +124,7 @@ func (c *Client) negotiation(conn net.Conn) (*rendezvous.NegotiationMessage, err
 
 	// reset timeout
 	_ = conn.SetReadDeadline(time.Time{})
-	log.Infof("receive hole punching negotiation message: %v", msg)
+	log.Debugf("receive hole punching negotiation message: %v", msg)
 
 	return &msg, nil
 }

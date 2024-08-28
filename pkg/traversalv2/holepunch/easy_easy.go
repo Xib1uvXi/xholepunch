@@ -59,7 +59,7 @@ func (hp *Easy2Easy) passive() (*Result, error) {
 // active
 func (hp *Easy2Easy) active() (*Result, error) {
 	for i := 0; i < 3; i++ {
-		log.Infof("e2hHandlerV2 active send message")
+		log.Debugf("e2hHandlerV2 active send message")
 		if err := netutil.RUDPSendMessage(hp.rudpConn, hp.rAddr, &HolePunchMessage{Empty: 1}, udpTimeout); err != nil {
 			log.Debugf("symmetric2EasyNAT send message error: %v \n", err)
 			continue

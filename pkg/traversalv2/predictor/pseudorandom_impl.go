@@ -31,25 +31,21 @@ func NewPseudorandomPortPredictor(targetPort, size int) *PseudorandomPortPredict
 	p.initLinear()
 
 	// 生成随机端口
-	size -= len(p.ports)
-
-	if size > 0 {
-		p.initLRandom(size)
-	}
+	p.initLRandom(size)
 
 	return p
 }
 
 func (p *PseudorandomPortPredictor) initLinear() {
 	// 将target port前后20个端口放入 ports
-	for i := p.targetPort - 20; i <= p.targetPort+20; i++ {
+	for i := p.targetPort - 30; i <= p.targetPort+30; i++ {
 		if i < 0 || i > 65535 {
 			continue
 		}
 
-		if i == p.targetPort {
-			continue
-		}
+		//if i == p.targetPort {
+		//	continue
+		//}
 
 		used, err := p.portBitmap.IsPortSet(i)
 		if err != nil {
@@ -71,7 +67,7 @@ func (p *PseudorandomPortPredictor) initLRandom(size int) {
 			continue
 		}
 
-		if port < 6000 {
+		if port < 1024 {
 			continue
 		}
 
