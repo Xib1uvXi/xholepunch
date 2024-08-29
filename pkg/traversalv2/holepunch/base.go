@@ -63,6 +63,7 @@ func (bm *BaseModel) Close() {
 	}
 
 	if bm.rudpConn != nil {
+		time.Sleep(5 * time.Second)
 		bm.rudpConn.Close()
 	}
 }
