@@ -15,17 +15,23 @@ import (
 
 const getRemoteAddrTimeout = 10 * time.Second
 
+type HolePunchResult struct {
+	LocalAddr  string `json:"local_addr"`
+	RemoteAddr string `json:"remote_addr"`
+	LocalPort  int    `json:"local_port"`
+	RemotePort int    `json:"remote_port"`
+}
+
 type Client struct {
 	serverAddr       string
 	NATType          int8
 	holePunchHandler holepunch.HolePunchHandler
-	connectFactory   ConnectFactory
 	cleanup          []func()
 
 	localAddr string
 }
 
-func NewClient(serverAddr string, natType int8, holePunchHandler holepunch.HolePunchHandler, connectFactory ConnectFactory) *Client {
+func NewClient(serverAddr string, natType int8, holePunchHandler holepunch.HolePunchHandler) *Client {
 	rand.New(rand.NewSource(time.Now().UnixNano()))
 	localAddr := ":" + fmt.Sprint(rand.Intn(23000)+10000)
 
@@ -36,19 +42,18 @@ func NewClient(serverAddr string, natType int8, holePunchHandler holepunch.HoleP
 		localAddr:        localAddr,
 		NATType:          natType,
 		holePunchHandler: holePunchHandler,
-		connectFactory:   connectFactory,
 	}
 }
 
-func (c *Client) HolePunching(token string) error {
+func (c *Client) HolePunching(token string) (*HolePunchResult, error) {
 	conn, err := c.connect(token)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	negotiationMessage, err := c.negotiation(conn)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	addrChan := make(chan string)
@@ -58,7 +63,7 @@ func (c *Client) HolePunching(token string) error {
 	}()
 
 	if err := c.sendMsgToNewServerPort(negotiationMessage); err != nil {
-		return err
+		return nil, err
 	}
 
 	var targetRemoteAddr string
@@ -66,24 +71,35 @@ func (c *Client) HolePunching(token string) error {
 	case targetRemoteAddr = <-addrChan:
 		log.Debugf("receive public addr: %s \n", targetRemoteAddr)
 	case <-time.After(getRemoteAddrTimeout):
-		return fmt.Errorf("receive remote public addr timeout")
+		return nil, fmt.Errorf("receive remote public addr timeout")
 	}
 
 	// hole punching
 	hpResult, err := c.holePunchHandler.HolePunching(c.localAddr, c.NATType, negotiationMessage, targetRemoteAddr)
 	if err != nil {
 		log.Errorf("hole punching error: %v", err)
-		return err
+		return nil, err
 	}
 
 	log.Debugf("hole punching result: %v", hpResult)
 
-	if err := c.connectFactory.Connect(hpResult.LocalAddr, hpResult.RemoteAddr, negotiationMessage.IsActive); err != nil {
-		log.Debugf("create connect error: %v", err)
-		return err
+	localAddr, err := net.ResolveUDPAddr("udp4", hpResult.LocalAddr)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil
+	remoteAddr, err := net.ResolveUDPAddr("udp4", hpResult.RemoteAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &HolePunchResult{
+		LocalAddr:  localAddr.IP.String(),
+		RemoteAddr: remoteAddr.IP.String(),
+		LocalPort:  localAddr.Port,
+		RemotePort: remoteAddr.Port,
+	}, nil
+
 }
 
 func (c *Client) Close() {
