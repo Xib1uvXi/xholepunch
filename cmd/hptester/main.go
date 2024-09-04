@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"github.com/Xib1uvXi/xholepunch/pkg/traversalv2"
 	"github.com/go-kratos/kratos/v2/log"
@@ -45,7 +46,7 @@ func main() {
 
 	defer cLocal.Close()
 
-	if err = cLocal.HolePunching(token); err != nil {
+	if _, err = cLocal.HolePunching(context.Background(), token); err != nil {
 		panic(err)
 	}
 

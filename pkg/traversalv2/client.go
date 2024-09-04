@@ -1,6 +1,7 @@
 package traversalv2
 
 import (
+	"context"
 	"fmt"
 	"github.com/Doraemonkeys/reliableUDP"
 	"github.com/Xib1uvXi/xholepunch/pkg/rendezvous"
@@ -45,7 +46,7 @@ func NewClient(serverAddr string, natType int8, holePunchHandler holepunch.HoleP
 	}
 }
 
-func (c *Client) HolePunching(token string) (*HolePunchResult, error) {
+func (c *Client) HolePunching(ctx context.Context, token string) (*HolePunchResult, error) {
 	conn, err := c.connect(token)
 	if err != nil {
 		return nil, err
@@ -72,6 +73,9 @@ func (c *Client) HolePunching(token string) (*HolePunchResult, error) {
 		log.Debugf("receive public addr: %s \n", targetRemoteAddr)
 	case <-time.After(getRemoteAddrTimeout):
 		return nil, fmt.Errorf("receive remote public addr timeout")
+
+	case <-ctx.Done():
+		return nil, context.Canceled
 	}
 
 	// hole punching
